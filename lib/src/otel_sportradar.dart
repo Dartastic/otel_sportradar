@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_sportradar_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_sportradar';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class SportradarResult {
+  /// Creates a result.
   const SportradarResult({
     this.environment,
     this.sport,
@@ -85,8 +86,13 @@ class SportradarResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class SportradarCallResult<T> {
+  /// Creates a call result.
   const SportradarCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final SportradarResult? result;
 }
@@ -116,7 +122,7 @@ Future<T> tracedSportradar<T>({
   final span = _tracer().startSpan(
     'sportradar $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
@@ -124,104 +130,104 @@ Future<T> tracedSportradar<T>({
       final res = r.result!;
       final extras = <Attribute<Object>>[];
       if (res.environment != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.environment',
           res.environment!,
         ));
       }
       if (res.sport != null) {
-        extras.add(OTel.attributeString('sportradar.sport', res.sport!));
+        extras.add(OTelAPI.attributeString('sportradar.sport', res.sport!));
       }
       if (res.league != null) {
-        extras.add(OTel.attributeString('sportradar.league', res.league!));
+        extras.add(OTelAPI.attributeString('sportradar.league', res.league!));
       }
       if (res.accessLevel != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.access_level',
           res.accessLevel!,
         ));
       }
       if (res.languageCode != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.language',
           res.languageCode!,
         ));
       }
       if (res.format != null) {
-        extras.add(OTel.attributeString('sportradar.format', res.format!));
+        extras.add(OTelAPI.attributeString('sportradar.format', res.format!));
       }
       if (res.surface != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.surface',
           res.surface!,
         ));
       }
       if (res.seasonId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.season.id',
           res.seasonId!,
         ));
       }
       if (res.gameId != null) {
-        extras.add(OTel.attributeString('sportradar.game.id', res.gameId!));
+        extras.add(OTelAPI.attributeString('sportradar.game.id', res.gameId!));
       }
       if (res.competitionId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.competition.id',
           res.competitionId!,
         ));
       }
       if (res.teamId != null) {
-        extras.add(OTel.attributeString('sportradar.team.id', res.teamId!));
+        extras.add(OTelAPI.attributeString('sportradar.team.id', res.teamId!));
       }
       if (res.playerId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.player.id',
           res.playerId!,
         ));
       }
       if (res.eventCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'sportradar.event.count',
           res.eventCount!,
         ));
       }
       if (res.scoreboardLive != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'sportradar.scoreboard.live',
           res.scoreboardLive!,
         ));
       }
       if (res.locale != null) {
-        extras.add(OTel.attributeString('sportradar.locale', res.locale!));
+        extras.add(OTelAPI.attributeString('sportradar.locale', res.locale!));
       }
       if (res.responseBytes != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'sportradar.response.bytes',
           res.responseBytes!,
         ));
       }
       if (res.qpsRemaining != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'sportradar.qps.remaining',
           res.qpsRemaining!,
         ));
       }
       if (res.errorCode != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.error.code',
           res.errorCode!,
         ));
         span.setStatus(SpanStatusCode.Error, 'Sportradar ${res.errorCode}');
       }
       if (res.errorMessage != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'sportradar.error.message',
           res.errorMessage!,
         ));
       }
       if (res.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           res.statusCode!,
         ));
@@ -232,13 +238,13 @@ Future<T> tracedSportradar<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
